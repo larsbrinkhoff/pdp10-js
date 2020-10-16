@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Knight TV</title>
+    <script src="include/util.js"></script>
+    <script src="include/websock.js"></script>
+    <script src="include/keysym.js"></script> 
+    <script src="tv.js"></script>
+  </head>
+  <body>
+    <p>This is a Knight TV console emulator.  It's connected to a PDP-11
+      emulator running the TV-11 software, which in turn talks to a PDP-10
+      emulator running ITS.</p>
+    <input id="button" type="button" value="Disconnect" style="width:100px"
+           onclick="button();"><br>
+    <p id="dpykb">Display: ? Keyboard: ?</p>
+    <canvas id="tv" width="576" height="454"></canvas>
+  </body>
+</html>
+

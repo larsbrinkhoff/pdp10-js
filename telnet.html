@@ -1,0 +1,67 @@
+<html>
+
+    <head>
+        <title>Telnet client using WebSockets</title>
+        <script src="include/util.js"></script>
+        <script src="include/websock.js"></script>
+        <script src="include/webutil.js"></script> 
+        <script src="include/keysym.js"></script> 
+        <script src="include/VT100.js"></script> 
+        <script src="include/wstelnet.js"></script> 
+    </head>
+
+    <body>
+
+        <input id='connectButton' type='button' value='Connect' style='width:100px'
+            onclick="connect();">
+        <br><br>
+
+        This supposedly emulates an Ann Arbor Ambassador connected to
+        a PDP-10 running ITS.
+
+        <pre id="terminal"></pre>
+
+        <script>
+            var telnet;
+
+            function connect() {
+                telnet.connect('its.pdp10.se',
+                               12345,
+                               false);
+                $D('connectButton').disabled = true;
+                $D('connectButton').value = "Connecting";
+            }
+
+            function disconnect() {
+                $D('connectButton').disabled = true;
+                $D('connectButton').value = "Disconnecting";
+                telnet.disconnect();
+            }
+
+            function connected() {
+                $D('connectButton').disabled = false;
+                $D('connectButton').value = "Disconnect";
+                $D('connectButton').onclick = disconnect;
+            }
+
+            function disconnected() {
+                $D('connectButton').disabled = false;
+                $D('connectButton').value = "Connect";
+                $D('connectButton').onclick = connect;
+            }
+
+            window.onload = function() {
+                console.log("onload");
+                var url = document.location.href;
+                
+                telnet = Telnet('terminal', connected, disconnected);
+                connect();
+            }
+
+            window.onunload = function() {
+                console.log("onunload");
+                disconnect();
+            }
+        </script>
+    </body>
+</html>
