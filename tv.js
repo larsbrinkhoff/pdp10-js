@@ -34,19 +34,27 @@ function keyTV(code) {
 
 function keydownTV(ev) {
     console.log("Key down: " + ev);
-    ev.preventDefault();
+    if (ws)
+        ev.preventDefault();
     var keysym = getKeysym(ev);
     console.log("Keysym: " + keysym);
     switch(keysym) {
+    case 0xFFFF: //Delete -> Rubout
     case 0xFF08: keyTV(0046); break; //Backspace -> Rubout
     case 0xFF09: keyTV(0022); break; //Tab -> Tab
     case 0xFF0D: keyTV(0062); break; //Return -> Return
     case 0xFF1B: keyTV(0023); break; //Esc -> Altmode
     case 0xFFBE: keyTV(0020); break; //F1 -> CALL
     case 0xFFBF: keyTV(0001); break; //F2 -> ESC
+    case 0xFFC8: fullscreenTV(); break; //F11 -> Fullscreen
+    case 0xFFE1: break; //Shift
     case 0xFFE3: bucky |= 004000; break; //Control -> Control
     case 0xFFE9: bucky |= 010000; break; //Alt -> Meta
-    default: keyTV(keymap[keysym]); break;
+    case 173:    keyTV(0014); break; //Weird -
+    default:
+        if (keysym < keymap.length)
+            keyTV(keymap[keysym]);
+        break;
     }
     console.log("Bucky: " + bucky.toString(8));
 }
@@ -58,6 +66,17 @@ function keyupTV(ev) {
     case 0xFFE9: bucky &= ~010000; break; //Alt -> Meta
     }
     console.log("Bucky: " + bucky.toString(8));
+}
+
+var fullscreen = false;
+
+function fullscreenTV() {
+    fullscreen = !fullscreen;
+    if (fullscreen) {
+        canvas.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
 }
 
 function drawTV() {
@@ -225,7 +244,8 @@ function connectTV() {
         console.log(">> WebSockets.onerror");
     });
 
-    uri = 'ws://its.pdp10.se:12346';
+    //uri = 'ws://its.pdp10.se:12346';
+    uri = 'ws://papnet.eu:12345';
     ws.open(uri);}
 
 window.onload = function() {
@@ -253,8 +273,8 @@ window.onload = function() {
 function button() {
     if (ws) {
         ws.close();
-	document.getElementById("button").value = "Connect";
         ws = null;
+	document.getElementById("button").value = "Connect";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     } else {
 	document.getElementById("button").value = "Disconnect";
