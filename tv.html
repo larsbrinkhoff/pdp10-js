@@ -7,9 +7,21 @@
     <script src="tv.js"></script>
   </head>
   <body>
-    <p>This is a Knight TV console emulator.  It's connected to a PDP-11
-      emulator running the TV-11 software, which in turn talks to a PDP-10
-      emulator running ITS.</p>
+    <p>This is a
+      <a href="https://hack.org/mc/blog/static/images/knight-console.jpg">Knight
+        TV console</a> emulator.  It's connected to a
+      <a href="http://github.com/aap/pdp11">PDP-11 emulator</a>
+      running the
+      <a href="https://github.com/PDP-10/its/blob/master/src/system/tv.147">TV-11
+      software</a>, which in turn talks to a PDP-10 emulator running
+      <a href="https://github.com/PDP-10/its">ITS</a>.</p>
+    <p>When you connect, you will automatically be assigned a free
+      display/keyboard pair.  This assignment will last until you click
+      <i>Disconnect</i>, or close the browser window.</p>
+    <p>In order to faithfully emulate a Knight keyboard, the
+      application grabs the keyboard.  ESC maps to ALTMODE, Alt to
+      META, F1 to CALL, and F2 to ESC.  Calling an elevator or buzzing
+      the door will have no effect... yet.</p>
     <input id="button" type="button" value="Disconnect" style="width:100px"
            onclick="button();"><br>
     <p id="dpykb">Display: ? Keyboard: ?</p>
