@@ -1,10 +1,11 @@
 var lineY = 0;
 var lineDY = 7;
 
+var imgWD; //ImageData for drawing a 16-bit word.
 var canvas;
 var ctx;
 var ws;
-var bucky = 0;
+var bucky = 0; //Bucky bits to add to key.
 
 var keymap = [ null, null, null, null, null, null, null, null,
                null, null, null, null, null, null, null, null,
@@ -98,19 +99,6 @@ function drawTV() {
         lineDY = -lineDY;
         lineY += lineDY;
     }
-
-    var img = ctx.createImageData(16, 1);
-    var i;
-    for (i = 0; i < 4*16; i += 4) {
-        img.data[i+0] = 0;
-        img.data[i+1] = Math.floor(Math.random() * 256);
-        img.data[i+2] = 0;
-        img.data[i+3] = 255;
-    }
-    ctx.putImageData(img, 420, lineY);
-}
-
-function openTV() {
 }
 
 var msgLength;
@@ -161,14 +149,10 @@ function receiveMSG() {
 
 function drawWord(data, index, low, high) {
     var word = low | (high << 8);
-    var i;
-    for (i = 15; i >= 0; i--) {
+    var bit;
+    for (bit = 0x8000; bit != 0; bit >>= 1) {
         data[index++] = 0;
-        if (word & (1 << i)) {
-            data[index++] = 255;
-        } else {
-            data[index++] = 0;
-        }
+        data[index++] = (word & bit) ? 255 : 0;
         data[index++] = 0;
         data[index++] = 255;
     }
@@ -176,47 +160,25 @@ function drawWord(data, index, low, high) {
 
 function receiveFB(bytes)
 {
-    console.log(">> FB");
-
     var x = bytes[0] | (bytes[1] << 8);
     var y = bytes[2] | (bytes[3] << 8);
     var w = bytes[4] | (bytes[5] << 8);
     var h = bytes[6] | (bytes[7] << 8);
 
     var img = ctx.createImageData(16 * w, h);
-    var i, j, k = 8;
+    var i, j = 8;
 
-    for (j = 0; j < h; j++) {
-        for (i = 0; i < w; i++) {
-            drawWord(img.data, 4 * 16 * (i + j * w), bytes[k++], bytes[k++]);
-        }
+    for (i = 0; i < 4 * 16 * w * h; i += 4 * 16) {
+        drawWord(img.data, i, bytes[j++], bytes[j++]);
     }
-    //ctx.putImageData(img, x, y);
-
-    createImageBitmap(img).then(function(tmp) {
-        ctx.drawImage(tmp, x, y);
-        tmp.close();
-    });
+    ctx.putImageData(img, x, y);
 }
 
 function receiveWD(bytes)
 {
-    //console.log(">> WD");
-
-    var img = ctx.createImageData(16, 1);
-    var addr = bytes[0] | (bytes[1] << 8);
-    var word = bytes[2] | (bytes[3] << 8);
-    addr *= 16;
-    var i;
-
-    drawWord(img.data, 0, bytes[2], bytes[3]);
-    //ctx.putImageData(img, addr % 576, );
-
-    //ctx.filter = 'blur(0.2px) brightness(150%)';
-    createImageBitmap(img).then(function(tmp) {
-        ctx.drawImage(tmp, addr % 576, Math.floor(addr / 576));
-        tmp.close();
-    });
+    var addr = 16 * (bytes[0] | (bytes[1] << 8));
+    drawWord(imgWD.data, 0, bytes[2], bytes[3]);
+    ctx.putImageData(imgWD, addr % 576, Math.floor(addr / 576));
 }
 
 function receiveCLOSE(bytes)
@@ -232,20 +194,11 @@ function connectTV() {
 
     ws = new Websock();
     ws.on('message', receiveDPYKB);
-    ws.on('open', function(e) {
-        console.log(">> WebSockets.onopen");
-        openTV();
-    });
-    ws.on('close', function(e) {
-        console.log(">> WebSockets.onclose");
-        ws.close();
-    });
     ws.on('error', function(e) {
         console.log(">> WebSockets.onerror");
     });
 
-    //uri = 'ws://its.pdp10.se:12346';
-    uri = 'ws://papnet.eu:12345';
+    uri = 'ws://its.pdp10.se:12346';
     ws.open(uri);}
 
 window.onload = function() {
@@ -254,6 +207,7 @@ window.onload = function() {
         ctx = canvas.getContext('2d');
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        imgWD = ctx.createImageData(16, 1);
         //setInterval(function() {
             //drawTV();
         //}, 30);
