@@ -11,7 +11,7 @@ var keymap = [ null, null, null, null, null, null, null, null,
                null, null, null, null, null, null, null, null,
                null, null, null, null, null, null, null, null,
                null, null, null, null, null, null, null, null,
-               0077, 0102, 0103, 0104, 0106, 0105, 0107, 0110, 
+               0077, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 
                0111, 0112, 0161, 0160, 0074, 0014, 0075, 0076,
                0013, 0002, 0003, 0004, 0005, 0006, 0007, 0010,
                0011, 0012, 0061, 0060, 0174, 0114, 0175, 0176,
@@ -51,7 +51,6 @@ function keydownTV(ev) {
     case 0xFFE1: break; //Shift
     case 0xFFE3: bucky |= 004000; break; //Control -> Control
     case 0xFFE9: bucky |= 010000; break; //Alt -> Meta
-    case 173:    keyTV(0014); break; //Weird -
     default:
         if (keysym < keymap.length)
             keyTV(keymap[keysym]);
